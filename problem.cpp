@@ -19,12 +19,12 @@ std::vector<std::string> split(std::string s, std::string del) {
 std::string FORMAT = "^([\\s\\S]*)\\\\answer\\{([\\s\\S]*)\\}[\\s\\S]*\\\\topic\\{(.*)\\}[\\s\\S]*\\\\difficulty\\{(.*)\\}";
 std::regex re(FORMAT);
 
-std::string Problem::getQuestion() {return question;}
-std::string Problem::getAnswer() {return answer;}
-std::string Problem::getTopic() {return topic;}
-int Problem::getDifficulty() {return difficulty;}
+std::string BankProblem::getQuestion() {return question;}
+std::string BankProblem::getAnswer() {return answer;}
+std::string BankProblem::getTopic() {return topic;}
+int BankProblem::getDifficulty() {return difficulty;}
 
-Problem::Problem(std::string rawProblem) {
+BankProblem::BankProblem(std::string rawProblem) {
     std::smatch match;
     if (!std::regex_search(rawProblem, match, re) == true) {
         std::cerr << "Invalid problem: " << rawProblem;
@@ -35,7 +35,7 @@ Problem::Problem(std::string rawProblem) {
     topic = match.str(3);
     difficulty = std::stoi(match.str(4));
 }
-std::vector<Problem> Problem::problemList(std::string filename) {
+std::vector<BankProblem> BankProblem::problemList(std::string filename) {
     // Read problems from file
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -51,9 +51,9 @@ std::vector<Problem> Problem::problemList(std::string filename) {
     problemStrings.erase(problemStrings.begin());
 
     // Convert strings to Problems
-    std::vector<Problem> problems = {};
+    std::vector<BankProblem> problems = {};
     for (std::string problemString : problemStrings) {
-        Problem problem(problemString);
+        BankProblem problem(problemString);
         problems.push_back(problem);
     }
     return problems;
