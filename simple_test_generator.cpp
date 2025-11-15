@@ -6,6 +6,8 @@
 #include <map>
 #include <set>
 #include "problem.h"
+#include "test_constraints.h"
+#include "test_selector.h"
 
 // ****************************************************************************
 // Configuration details
@@ -31,68 +33,25 @@ std::string TEX_HEADER = "simple_tex_header.tex";
 std::string CONTENT_HEADER = "simple_content_header.tex";
 
 // ****************************************************************************
-
-// Check whether a proposed test is valid according to the above constraints.
-bool valid(std::vector<Problem> test, std::set<std::string> topics) {
-    // Initialize metrics
-    int difficulty = 0;
-    std::map<std::string, int> topicCounts;
-    for (std::string topic : topics) {
-        topicCounts[topic] = 0;
-    }
-
-    // Calculate the metrics
-    for (Problem p : test) {
-        difficulty += p.getDifficulty();
-        topicCounts[p.getTopic()] += 1;
-    }
-
-    // Check the metrics
-    if (difficulty < MIN_DIFFICULTY || difficulty > MAX_DIFFICULTY) {
-        return false;
-    }
-    for (std::string topic : topics) {
-        int count = topicCounts[topic];
-        if (count < MIN_TOPIC || count > MAX_TOPIC) {
-            return false;
-        }
-    }
-    return true;
-}
-
-// Given a bank of possible test problems, return randomly-chosen 
-// problems that form a valid test, according to the contraints above.
-std::vector<Problem> testProblems(std::vector<Problem> bank) {
-    // Determine the topics covered on the test
-    std::set<std::string> topics;
-    for (Problem p : bank) {
-        topics.insert(p.getTopic());
-    }
-
-    // Used for random generation
-    std::random_device rd;
-    std::mt19937 gen(rd());
-
-    while (true) {
-        std::shuffle(bank.begin(), bank.end(), gen);
-        std::vector<Problem> testProblems(bank.begin(), bank.begin() + NUM_PROBLEMS);
-        if (valid(testProblems, topics)) {
-            return testProblems;
-        }
-    }
-}
-
 int main() {
     // Read in problem list and convert to Problem objects
     std::vector<Problem> bank = Problem::problemList(BANK);
 
+    TestConstraints constraints{
+        NUM_PROBLEMS,
+        MIN_TOPIC,
+        MAX_TOPIC,
+        MIN_DIFFICULTY,
+        MAX_DIFFICULTY
+    };
+
     // Generate the test problems
-    std::vector<Problem> test = testProblems(bank);
+    std::vector<Problem> test = testProblems(bank, constraints);
 
     // Open the file to write the test to
     std::ofstream outputFile(FILENAME); 
     if (!outputFile.is_open()) {
-        std::cerr << "Unable to open file." << std::endl;
+        std::cerr << "Unable to open file." << FILENAME << std::endl;
         return 1;
     }
 
@@ -109,4 +68,6 @@ int main() {
     // End the file
     outputFile << "\\end{enumerate}\n\\end{document}";
     outputFile.close();
+
+    return 0;
 }
