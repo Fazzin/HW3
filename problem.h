@@ -6,17 +6,24 @@
 
 class Problem {
 public:
-    std::string getQuestion();
-    std::string getAnswer();
-    std::string getTopic();
-    int getDifficulty();
-    Problem(std::string rawProblem);
-    static std::vector<Problem> problemList(std::string filename);
-private:
-    std::string question;
-    std::string answer;
-    std::string topic;
-    int difficulty;
+    virtual ~Problem() = default;
+    virtual std::string getQuestion() const = 0;
+    virtual std::string getAnswer() const = 0;
+};
+
+class BankProblem : public Problem {
+    public:
+        explicit BankProblem(const std::string& rawProblem);
+        std::string getQuestion() const override;
+        std::string getAnswer() const override;
+        std::string getTopic() const;
+        int getDifficulty() const;
+        static std::vector<BankProblem> problemList(const std::string& filename);
+    private:
+        std::string question;
+        std::string answer;
+        std::string topic;
+        int difficulty;
 };
 
 #endif
